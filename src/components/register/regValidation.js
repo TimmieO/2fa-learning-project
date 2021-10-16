@@ -21,10 +21,9 @@ export default async function RegValidation(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataVal),
       };
-      const result = await fetch("/api/getUser/username", settings);
+      const result = await fetch("/api/user/countUsername", settings);
       const amount = await result.json();
-      console.log(amount.amount);
-      if (amount.amount > 0) {
+      if (amount.count > 0) {
         retObj.OK = false;
         return retObj;
       }
@@ -58,9 +57,9 @@ export default async function RegValidation(data) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataVal),
       };
-      let result = await fetch("/api/getUser/email", settings);
+      let result = await fetch("/api/user/countEmail", settings);
       let amount = await result.json();
-      if (amount.amount > 0) {
+      if (amount.count > 0) {
         retObj.OK = false;
         return retObj;
       }
