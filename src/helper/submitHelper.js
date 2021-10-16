@@ -48,7 +48,7 @@ async function submitRegister(data){
     body: JSON.stringify(dataVal)
   }
 
-  let result = await fetchHelper('/api/addUser', settings);
+  let result = await fetchHelper('/api/user/register', settings);
 
   return result;
 }
@@ -69,7 +69,7 @@ async function submitLogin(data){
     body: JSON.stringify(dataVal)
   }
 
-  let result = await fetchHelper('/api/loginUser', settings);
+  let result = await fetchHelper('/api/user/login', settings);
 
   return result;
 }
