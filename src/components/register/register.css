@@ -1,8 +1,9 @@
 :root{
   /* PRIMARY */
-  --first-color: #BF8596;
-  --input-color: #EDBFC0;
-  --border-color: #F3DAC6;
+  --label-text-color: white;
+  --signup-button-bg-color: gray;
+  --border-color: white;
+  --input-bg-color: gray;
 
   --body-font: 'Roboto', sans-serif;
   --normal-font-size: 1rem;
@@ -61,8 +62,8 @@ h1 {
   border-radius: .5rem;
   outline: none;
   padding: 1rem;
-  background-color: none;
   z-index: 1;
+  background-color: var(--input-bg-color);
 }
 
 .form_label{
@@ -70,8 +71,7 @@ h1 {
   left: 1rem;
   top: 1rem;
   padding: 0 .25rem;
-  background-color: white;
-  color: var(--input-color);
+  background-color: grey;
   font-size: var(--normal-font-size);
   transition: .3s;
 }
@@ -82,7 +82,7 @@ h1 {
   padding: 1rem;
   outline: none;
   border: none;
-  background-color: var(--first-color);
+  background-color: var(--signup-button-bg-color);
   color: white;
   font-size: var(--normal-font-size);
   border-radius: .5rem;
@@ -91,13 +91,13 @@ h1 {
 }
 
 .form_button:hover{
-  background-color: #BAABB4;
+  background-color: black;
 }
 
 .form_input:focus + .form_label{
   top: -.5rem;
   left: .8rem;
-  color: var(--first-color);
+  color: var(--label-text-color);
   font-size: var(--small-font-size);
   font-weight: 500;
   z-index: 10;
@@ -106,7 +106,7 @@ h1 {
 .form_input:not(:placeholder-shown).form_input:not(:focus)+.form_label{
   top: -.5rem;
   left: .8rem;
-  color: var(--first-color);
+  color: var(--label-text-color);
   font-size: var(--small-font-size);
   font-weight: 500;
   z-index: 10;
@@ -114,4 +114,9 @@ h1 {
 
 .form_input:focus{
   border: 1.5px solid var(--border-color);
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
