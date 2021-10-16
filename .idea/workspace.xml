@@ -3,13 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c027f3de-6320-4d80-a9f4-d65345dd8132" name="Default" comment="update">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/backend/index.js" afterPath="$PROJECT_DIR$/backend/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package-lock.json" afterPath="$PROJECT_DIR$/package-lock.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/App.js" afterPath="$PROJECT_DIR$/src/App.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/register/Register.js" afterPath="$PROJECT_DIR$/src/components/register/Register.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/register/regValidation.js" afterPath="$PROJECT_DIR$/src/components/register/regValidation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/register/register.css" afterPath="$PROJECT_DIR$/src/components/register/register.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/helper/submitHelper.js" afterPath="$PROJECT_DIR$/src/helper/submitHelper.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -286,7 +282,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1634374279953</updated>
-      <workItem from="1634374281102" duration="11965000" />
+      <workItem from="1634374281102" duration="12063000" />
     </task>
     <task id="LOCAL-00001" summary="update">
       <created>1634383774354</created>
@@ -316,11 +312,25 @@
       <option name="project" value="LOCAL" />
       <updated>1634384306576</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="added dotenv configuration added /api/ to post for user">
+      <created>1634388924509</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1634388924509</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fixed some css for registration">
+      <created>1634388947557</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1634388947557</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="11965000" />
+    <option name="totallyTimeSpent" value="12063000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
@@ -352,7 +362,9 @@
     <MESSAGE value="register css" />
     <MESSAGE value="register UI and some functions for submit" />
     <MESSAGE value="reg input validation helper" />
-    <option name="LAST_COMMIT_MESSAGE" value="reg input validation helper" />
+    <MESSAGE value="added dotenv configuration added /api/ to post for user" />
+    <MESSAGE value="fixed some css for registration" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed some css for registration" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

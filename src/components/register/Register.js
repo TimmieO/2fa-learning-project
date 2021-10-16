@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from "react";
 import "./register.css";
-import {isLoggedIn} from '../login/LoggedInCheck';
 
 import RegValidation from './regValidation'
 import submitHelper from '../../helper/submitHelper'
@@ -8,7 +7,7 @@ import submitHelper from '../../helper/submitHelper'
 export default function RegisterPage() {
 
   const [regInfo, setRegInfo] = useState({username:{val: null, OK: false}, firstname: {val: null, OK: false}, lastname:{val: null, OK: false}, email:{val: null, OK: false}, password:{val: null, OK: false}, repassword:{val: null, OK: false}})
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     //If user is logged in return to home page
@@ -43,7 +42,6 @@ export default function RegisterPage() {
           OK: result.OK,
         }
       }));
-
     }
     if(result.OK == true){
       e.target.style.borderColor = 'green';
@@ -80,11 +78,11 @@ export default function RegisterPage() {
     let status = await submitHelper('register', regInfo)
 
     //Registered
-    if(status.auth == true){
+    if(status.error == false){
       window.location.href = '/'; //Redirect user to home page
     }
     //Something wrong
-    if(status.auth == false){
+    if(status.error == true){
       event.preventDefault();
       event.target.disabled = false;
     }
