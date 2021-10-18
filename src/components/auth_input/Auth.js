@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import "./auth.css";
 import submitHelper from "../../helper/submitHelper";
 import checkAccess from "../../helper/userHasAccess"
+import fetchPageData from "../../helper/fetchPageDataHelper"
 
-import { useHistory } from "react-router-dom";
 export default function Login() {
   const [authInfo, setAuthInfo] = useState({
     auth: null
   });
   const [userHasAccess, setUserHasAccess] = useState()
   const [loading, setLoading] = useState(true);
+  const [fetchedData, setFetchedData] = useState({});
 
   useEffect(() => {
     accessCheck();
@@ -22,9 +23,16 @@ export default function Login() {
       window.location.href = "/";
     }
     if(access == true){
+      getPageData();
       setLoading(false)
     }
   };
+
+  const getPageData = async () => {
+    let data = await fetchPageData(window.location.pathname);
+    console.log(data);
+    setFetchedData(data)
+  }
 
   //Change text in state onChange
   const onChangeUpdateStateText = async (e) => {
@@ -39,7 +47,7 @@ export default function Login() {
   const submitAuth = async (e) => {
     e.preventDefault();
 
-    let status = await submitHelper("auth", authInfo);
+    let status = await submitHelper(fetchedData.formType, authInfo);
 
     if (status.verified == true) {
       window.location.href = "/"; //Return user to home page
@@ -54,6 +62,7 @@ export default function Login() {
     <div className="body">
       {loading ? "Loading!" :
         <div className="div-form">
+          {fetchedData.qrCode != false ? [<h1>Active 2FA </h1>, <img src={fetchedData.qrCode}/>]: null}
           <form action="" className="form">
             <h1 className="form_title">Enter Auth</h1>
             <br/>
