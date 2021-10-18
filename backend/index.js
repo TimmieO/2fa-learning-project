@@ -7,6 +7,8 @@ const host = "localhost";
 const jwt = require('jsonwebtoken');
 var CryptoJS = require("crypto-js");
 
+const qrcode = require('qrcode');
+
 const speakeasy = require('speakeasy')
 
 require('dotenv').config({path: '../.env'});
@@ -17,8 +19,13 @@ app.use(bodyParser.json());
 const userData = {
   user_id: null,
   username: null,
-  secret: null,
-  loggedIn: false
+  loggedIn: false,
+  auth_active: null,
+  auth :{
+    secret: null,
+    otpauth_url: null,
+    qrCode: null,
+  }
   }
 
 //Handle user
@@ -30,8 +37,8 @@ app.post('/api/user/:action', function(req,res){
   switch(req.params.action){
     case "register":
     {
-      action_sql = 'insert into user(firstname, lastname, email, username, password, user_salt) values (?,?,?,?,?,?)';
-      let inset_token_sql = 'insert into token(user_id, token) values (?,?)';
+      action_sql = 'insert into user(firstname, lastname, email, username, password, user_salt, auth_active) values (?,?,?,?,?,?,?)';
+      let inset_token_sql = 'insert into auth(user_id, secret, otpauth_url) values (?,?,?)';
       let pwd_info = encryptPassword(data);
       registerUser({action_sql, inset_token_sql}, data, pwd_info)
       break;
@@ -39,7 +46,7 @@ app.post('/api/user/:action', function(req,res){
     case "login":
     {
       let get_salt_sql = "SELECT user_salt FROM user WHERE username = ?";
-      let action_sql = "SELECT user.user_id, user.username, token.token FROM user JOIN token ON token.user_id = user.user_id WHERE username = ? and password = ?";
+      let action_sql = "SELECT user.user_id, user.username, auth.secret, auth.otpauth_url, user.auth_active FROM user JOIN auth ON auth.user_id = user.user_id WHERE username = ? and password = ?";
 
       loginUser({get_salt_sql : get_salt_sql, action_sql: action_sql}, data);
 
@@ -60,6 +67,12 @@ app.post('/api/user/:action', function(req,res){
     case "validate":
     {
       validate(data);
+      break;
+    }
+    case "activateAuth":
+    {
+      action_sql = "UPDATE user SET auth_active = 1 WHERE user_id = ?"
+      activateAuth(action_sql, data);
       break;
     }
     case "access":
@@ -108,14 +121,15 @@ app.post('/api/user/:action', function(req,res){
   }
 
   function registerUser(sql, data, pwd_info){
-    let authToken = speakeasy.generateSecret().base32;
+    let generatedSecret = speakeasy.generateSecret();
     connectionObject.query(sql.action_sql,
       [data.firstname,
         data.lastname,
         data.email,
         data.username,
         pwd_info.pwd,
-        pwd_info.user_salt
+        pwd_info.user_salt,
+        0
       ],
       function (err, result) {
         if (err) {
@@ -125,7 +139,8 @@ app.post('/api/user/:action', function(req,res){
 
           connectionObject.query(sql.inset_token_sql,
             [result.insertId,
-              authToken
+              generatedSecret.base32,
+              generatedSecret.otpauth_url
             ],
             function (err, result) {
             console.log(result);
@@ -155,7 +170,7 @@ app.post('/api/user/:action', function(req,res){
           let pwd = data.password;
 
           let hash_pwd = CryptoJS.SHA256(process.env.PUBLIC_SALT + user_salt + pwd).toString(CryptoJS.enc.Hex);
-          connectionObject.query(sql.action_sql, [data.username, hash_pwd], function (err, result) {
+          connectionObject.query(sql.action_sql, [data.username, hash_pwd], async function (err, result) {
             if (err) {
               console.log(err)
             }
@@ -163,16 +178,22 @@ app.post('/api/user/:action', function(req,res){
               if(result.length > 0){//User exists'
                 const id = result[0].user_id;
                 const username = result[0].username;
-                const token = result[0].token;
-                const jwtToken = jwt.sign({id, username}, process.env.ACCESS_TOKEN_SECRET, {
-                  expiresIn: 600,
-                })
+                const secret = result[0].secret;
+                const otpauth_url = result[0].otpauth_url;
+                const auth_active = result[0].auth_active
+
                 userData.user_id = id;
                 userData.username = username;
-                userData.secret = token;
                 userData.loggedIn = true;
                 userData.validated = false;
-                return res.json({valid: true});
+                userData.auth.secret = secret;
+                userData.auth.otpauth_url = otpauth_url;
+                userData.auth_active = auth_active;
+
+                await getOtpQrCode();
+
+                return res.json({valid: true, qrCode: userData.auth.qrCode});
+
               }else{
                 return res.json({valid: false, message: "Wrong info"});
               }
@@ -186,10 +207,24 @@ app.post('/api/user/:action', function(req,res){
     })
   }
 
+  function getOtpQrCode(){
+    qrcode.toDataURL(userData.auth.otpauth_url, function(err, data){
+
+      userData.auth.qrCode = data;
+
+    })
+    return
+  }
+
   function validate(data){
+    if(userData.auth_active == 0){
+      res.json({message: "Error", error: true});
+      return;
+    }
+
     let token = data.enteredAuthToken;
     try {
-      const secret = userData.secret;
+      const secret = userData.auth.secret;
 
       const verified = speakeasy.totp.verify({
         secret,
@@ -199,6 +234,46 @@ app.post('/api/user/:action', function(req,res){
       if (verified) {
         userData.validated = true;
         res.json({verified: true});
+      }
+      if (!verified) {
+        userData.validated = false;
+        res.json({verified: false})
+      }
+    }
+    catch (error){
+    }
+  }
+
+  function activateAuth(sql, data){
+    if(userData.auth_active == 1){
+      res.json({message: "Error", error: true});
+      return;
+    }
+
+    let token = data.enteredAuthToken;
+    try {
+      const secret = userData.auth.secret;
+
+      const verified = speakeasy.totp.verify({
+        secret,
+        encoding: 'base32',
+        token
+      });
+      if (verified) {
+        userData.validated = true;
+        userData.auth_active = true;
+
+        connectionObject.query(sql, [userData.user_id], function (err, result) {
+          if (err) {
+            console.log(err);
+          }
+          else{
+            return res.json({verified: true});
+          }
+        })
+        connectionObject.end();
+
+
       }
       if (!verified) {
         userData.validated = false;
@@ -282,6 +357,46 @@ app.post('/api/user/:action', function(req,res){
         return;
       }
     }
+  }
+
+})
+
+
+app.post('/api/getPageData', function(req,res){
+
+  var data = req.body;
+
+  let retVal = {};
+
+  switch(data.path){
+    case "/auth":
+    {
+      authData(retVal);
+      break;
+    }
+    case"header":
+    {
+      headerData();
+      break;
+    }
+  }
+
+  function authData(retVal){
+    if(userData.auth_active == 1){
+      retVal.qrCode = false;
+      retVal.formType = 'auth'
+    }
+    if(userData.auth_active == 0){
+      retVal.qrCode = userData.auth.qrCode;
+      retVal.formType = 'activateAuth'
+    }
+
+    res.json(retVal);
+    return;
+  }
+
+  function headerData(){
+    
   }
 
 })
