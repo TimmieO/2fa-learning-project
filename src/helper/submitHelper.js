@@ -3,6 +3,8 @@ import fetchHelper from './fetchHelper';
 //type == form type (eg, register, login)
 export default async function submitHelper(type, data) {
 
+  console.log(type == "actia");
+
   switch(type){
     case 'register':
     {
@@ -17,6 +19,11 @@ export default async function submitHelper(type, data) {
     case 'auth':
     {
       let status = await submitAuth(data);
+      return status;
+    }
+    case 'activateAuth':
+    {
+      let status = await submitActivateAuth(data);
       return status;
     }
   }
@@ -93,6 +100,24 @@ async function submitAuth(data){
   }
 
   let result = await fetchHelper('/api/user/validate', settings);
+
+  return result;
+}
+
+async function submitActivateAuth(data){
+
+  const dataVal = {
+    enteredAuthToken : data.auth,
+  }
+
+  const settings = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dataVal)
+
+  }
+
+  let result = await fetchHelper('/api/user/activateAuth', settings);
 
   return result;
 }
