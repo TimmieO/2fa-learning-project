@@ -3,18 +3,29 @@ import "./register.css";
 
 import RegValidation from './regValidation'
 import submitHelper from '../../helper/submitHelper'
+import checkAccess from "../../helper/userHasAccess"
 
 export default function RegisterPage() {
 
   const [regInfo, setRegInfo] = useState({username:{val: null, OK: false}, firstname: {val: null, OK: false}, lastname:{val: null, OK: false}, email:{val: null, OK: false}, password:{val: null, OK: false}, repassword:{val: null, OK: false}})
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [userHasAccess, setUserHasAccess] = useState()
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    //If user is logged in return to home page
-    if(loggedIn){
-      window.location.href = '/';
+    accessCheck();
+  }, [userHasAccess]);
+
+  const accessCheck = async () => {
+    let access = await checkAccess(window.location.pathname)
+    setUserHasAccess(access)
+    if(access == false){
+      window.location.href = "/";
     }
-  }, []);
+    if(access == true){
+      setLoading(false)
+
+    }
+  };
 
   //Check data onBlur
   const regDataCheck = async(e) => {
@@ -90,38 +101,46 @@ export default function RegisterPage() {
 
   return (
     <div className="body">
-      <div className="div-form">
-        <form action="" className="form">
-          <h1 className="form_title">Sign Up</h1>
-          <br/>
-          <div className="form_div">
-            <input type="text" className="form_input" data-input="username" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">Username</label>
-          </div>
-          <div className="form_div">
-            <input type="text" className="form_input" data-input="firstname" placeholder="" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">First name</label>
-          </div>
-          <div className="form_div">
-            <input type="text" className="form_input" data-input="lastname" placeholder="" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">Last name</label>
-          </div>
-          <div className="form_div">
-            <input type="text" className="form_input" data-input="email" placeholder="" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">Email</label>
-          </div>
-          <div className="form_div">
-            <input type="password" className="form_input" data-input="password" placeholder="" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">Password</label>
-          </div>
-          <div className="form_div">
-            <input type="password" className="form_input" data-input="repassword" placeholder="" onBlur={regDataCheck} onChange={onChangeUpdateStateText}/>
-            <label className="form_label">Re-Enter password</label>
-          </div>
+      {loading ? "Loading!" :
+        <div className="div-form">
+          <form action="" className="form">
+            <h1 className="form_title">Sign Up</h1>
+            <br/>
+            <div className="form_div">
+              <input type="text" className="form_input" data-input="username" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">Username</label>
+            </div>
+            <div className="form_div">
+              <input type="text" className="form_input" data-input="firstname" placeholder="" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">First name</label>
+            </div>
+            <div className="form_div">
+              <input type="text" className="form_input" data-input="lastname" placeholder="" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">Last name</label>
+            </div>
+            <div className="form_div">
+              <input type="text" className="form_input" data-input="email" placeholder="" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">Email</label>
+            </div>
+            <div className="form_div">
+              <input type="password" className="form_input" data-input="password" placeholder="" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">Password</label>
+            </div>
+            <div className="form_div">
+              <input type="password" className="form_input" data-input="repassword" placeholder="" onBlur={regDataCheck}
+                     onChange={onChangeUpdateStateText}/>
+              <label className="form_label">Re-Enter password</label>
+            </div>
 
-          <input type="submit" className="form_button" value="Sign Up" onClick={(event) => submitRegister(event)}/>
-        </form>
-      </div>
+            <input type="submit" className="form_button" value="Sign Up" onClick={(event) => submitRegister(event)}/>
+          </form>
+        </div>
+      }
     </div>
   );
 }
