@@ -14,6 +14,11 @@ export default async function submitHelper(type, data) {
       let status = await submitLogin(data);
       return status;
     }
+    case 'auth':
+    {
+      let status = await submitAuth(data);
+      return status;
+    }
   }
   return false;
 }
@@ -48,7 +53,7 @@ async function submitRegister(data){
     body: JSON.stringify(dataVal)
   }
 
-  let result = await fetchHelper('/api/addUser', settings);
+  let result = await fetchHelper('/api/user/register', settings);
 
   return result;
 }
@@ -69,7 +74,25 @@ async function submitLogin(data){
     body: JSON.stringify(dataVal)
   }
 
-  let result = await fetchHelper('/api/loginUser', settings);
+  let result = await fetchHelper('/api/user/login', settings);
+
+  return result;
+}
+
+async function submitAuth(data){
+
+  const dataVal = {
+    enteredAuthToken : data.auth,
+  }
+
+  const settings = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dataVal)
+
+  }
+
+  let result = await fetchHelper('/api/user/validate', settings);
 
   return result;
 }
