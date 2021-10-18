@@ -8,26 +8,22 @@ const jwt = require('jsonwebtoken');
 
 var CryptoJS = require("crypto-js");
 
-var corsOptions = {
-  origin: 'http://localhost:3001',
-  methods: "GET, PUT, DELETE"
-}
-require('dotenv').config();
+require('dotenv').config({path: '../.env'});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //Handle user
-app.post('/user/:action', function(req,res){
+app.post('/api/user/:action', function(req,res){
   var connectionObject = dbConnection();
   var data = req.body;
   let action_sql;
 
-  switch(action){
+  switch(req.params.action){
     case "register":
     {
       action_sql = 'insert into user(firstname, lastname, email, username, password, user_salt) values (?,?,?,?,?,?)';
-      let pwd_info = encryptPassword();
+      let pwd_info = encryptPassword(data);
       registerUser(action_sql, data, pwd_info)
       break;
     }
@@ -40,13 +36,13 @@ app.post('/user/:action', function(req,res){
 
       break;
     }
-    case "checkUsername":
+    case "countUsername":
     {
-      action_sql = "SELECT COUNT(user_id) AS user FROM user WHERE username = ?";
+      action_sql = "SELECT COUNT(user_id) AS count FROM user WHERE username = ?";
       checkUsername(action_sql, data);
       break;
     }
-    case "checkEmail":
+    case "countEmail":
     {
       action_sql = "SELECT COUNT(user_id) AS count FROM user WHERE email = ?";
       checkEmail(action_sql, data);
@@ -60,7 +56,8 @@ app.post('/user/:action', function(req,res){
         console.log(err);
       }
       else{
-        return res.send(result);
+        let countTotal = result[0];
+        return res.send(countTotal);
       }
     })
   }
@@ -71,7 +68,8 @@ app.post('/user/:action', function(req,res){
         console.log(err);
       }
       else{
-        return res.send(result);
+        let countTotal = result[0];
+        return res.send(countTotal);
       }
     })
   }
@@ -94,15 +92,15 @@ app.post('/user/:action', function(req,res){
         data.lastname,
         data.email,
         data.username,
-        pwd_info.hash_pwd,
+        pwd_info.pwd,
         pwd_info.user_salt
       ],
       function (err, result) {
         if (err) {
-          console.log(err);
+          res.json({message: 'Success', error: true})
         }
         if(!err){
-          res.json({message: 'Success'})
+          res.json({message: 'Success', error: false})
         }
       }
     )
