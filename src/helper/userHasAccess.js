@@ -12,9 +12,15 @@ export default async function checkAccess(data){
 
   let result = await fetchHelper('/api/user/access', settings);
 
-  console.log(result);
-
+  let newRoute = result.reRoute;
   let access = result.hasAccess;
+
+  if(access == false){
+    window.location.href = newRoute;
+  }
+  if(access == true){
+    return true
+  }
 
   return access;
 }
