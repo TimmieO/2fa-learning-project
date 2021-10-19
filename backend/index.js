@@ -286,6 +286,7 @@ app.post('/api/user/:action', function(req,res){
 
   function hasAccess(data){
 
+    let newRoute;
     let page = data.path;
 
     const accessObj = {
@@ -305,8 +306,15 @@ app.post('/api/user/:action', function(req,res){
         loggedIn: true,
       },
       home: {
-
       },
+    }
+
+    //Rules to reroute if not validated but check with auth_active
+    if(userData.loggedIn == true && userData.validated == false && userData.auth_active == true){
+      newRoute = '/auth';
+    }
+    if(userData.loggedIn == true && userData.validated == false && userData.auth_active == false){
+      newRoute = '/';
     }
 
     if(page == '/login'){
@@ -319,7 +327,7 @@ app.post('/api/user/:action', function(req,res){
         return;
       }
       if(accessObj.login.loggedIn != userData.loggedIn || accessObj.login.validated != userData.validated){
-        res.json({hasAccess: false});
+        res.json({hasAccess: false, reRoute: newRoute});
         return;
       }
     }
@@ -333,7 +341,7 @@ app.post('/api/user/:action', function(req,res){
         return;
       }
       if(accessObj.register.loggedIn != userData.loggedIn || accessObj.register.validated != userData.validated){
-        res.json({hasAccess: false});
+        res.json({hasAccess: false, reRoute: newRoute});
         return;
       }
     }
@@ -343,7 +351,7 @@ app.post('/api/user/:action', function(req,res){
         return;
       }
       if(accessObj.auth.loggedIn != userData.loggedIn || accessObj.auth.validated != userData.validated){
-        res.json({hasAccess: false});
+        res.json({hasAccess: false, reRoute: newRoute});
         return;
       }
     }
@@ -353,7 +361,17 @@ app.post('/api/user/:action', function(req,res){
         return;
       }
       if(accessObj.logout.loggedIn != userData.loggedIn){
-        res.json({hasAccess: false});
+        res.json({hasAccess: false, reRoute: '/'});
+        return;
+      }
+    }
+    if(page == '/'){
+      if(newRoute == 'auth'){
+        res.json({hasAccess: false, reRoute: '/auth'});
+        return;
+      }
+      if(newRoute == '/' || newRoute == null){
+        res.json({hasAccess: true});
         return;
       }
     }
@@ -374,7 +392,7 @@ app.post('/api/getPageData', function(req,res){
       authData(retVal);
       break;
     }
-    case"header":
+    case "header":
     {
       headerData();
       break;
@@ -396,7 +414,7 @@ app.post('/api/getPageData', function(req,res){
   }
 
   function headerData(){
-    
+
   }
 
 })
