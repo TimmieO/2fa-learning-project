@@ -20,9 +20,7 @@ export default function Login() {
   const accessCheck = async () => {
     let access = await checkAccess(window.location.pathname)
     setUserHasAccess(access)
-    if(access == false){
-      window.location.href = "/";
-    }
+
     if(access == true){
       setLoading(false)
 
